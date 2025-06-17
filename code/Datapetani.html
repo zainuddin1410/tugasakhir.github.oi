@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daftar Petani</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('https://source.unsplash.com/1600x900/?farm') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    header {
+      background-image: url('sawah.jpeg');
+      background-size: cover;
+      background-position: center;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #4CAF50;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .judul-utama {
+      font-size: 3em;
+      font-weight: bold;
+      background-color: azure;
+      background-size: cover;
+      background-position: center;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      margin: 10px 0;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+    }
+
+    nav ul li {
+      display: inline-block;
+      margin: 0 15px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #dbe9db;
+      font-weight: bold;
+      padding: 5px 12px;
+      transition: 0.3s;
+      border-radius: 5px;
+    }
+
+    nav ul li a:hover {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+      background-color: white;
+    }
+
+    th, td {
+      padding: 14px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tbody tr:hover {
+      background-color: #e0f2f1;
+    }
+
+    .edit-btn, .hapus-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .edit-btn {
+      background-color: #2196F3;
+      color: white;
+      margin-right: 5px;
+    }
+
+    .hapus-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-top: 3px solid #4CAF50;
+      margin-top: 60px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .akhir {
+      font-weight: bold;
+      background-color: rgb(0, 0, 0);
+      background-size: cover;
+      background-position: center;
+      color: rgb(255, 255, 255);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h3 class="judul-utama">Website Pertanian dan Perkebunan</h3>
+    <nav>
+      <ul>
+        <li><a href="beranda.html">Beranda</a></li>
+        <li><a href="pupuk.html">Stok Pupuk</a></li>
+        <li><a href="Pencarian.html">Pencarian Data Petani</a></li>
+        <li><a href="pengambilan.html">Pengambilan Pupuk</a></li>
+        <li><a href="register.html">Pendataan Petani</a></li>
+        <li><a href="Datapetani.html">Data Petani</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Daftar Petani</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Alamat</th>
+          <th>Luas Lahan (ha)</th>
+          <th>Kebutuhan Pupuk</th>
+          <th>Lokasi</th>
+          <th>Koordinat</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="farmersList">
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    let farmersByRegency = JSON.parse(localStorage.getItem('farmersByRegency')) || {};
+
+    window.onload = () => {
+      if (document.getElementById("farmersList")) {
+        displayFarmers();
+      }
+    };
+
+    function displayFarmers() {
+      const list = document.getElementById("farmersList");
+      list.innerHTML = '';
+
+      for (const regency in farmersByRegency) {
+        const farmers = farmersByRegency[regency];
+        const headerRow = `
+          <tr>
+            <th colspan="7" style="background-color:#eee">${regency}</th>
+          </tr>
+        `;
+        list.innerHTML += headerRow;
+
+        farmers.forEach((farmer, index) => {
+          const coord = farmer.coordinates?.[0] || ["-", "-"];
+
+          const pupuk = typeof farmer.fertilizerResult === "object" && farmer.fertilizerResult !== null
+            ? Object.entries(farmer.fertilizerResult)
+                .map(([jenis, jumlah]) =>`${jenis}: ${jumlah} kg`)
+                .join("<br>")
+            : (farmer.fertilizerResult || "Belum dihitung");
+
+          list.innerHTML += `
+            <tr>
+              <td>${farmer.name}</td>
+              <td>${farmer.address}</td>
+              <td>${farmer.landSize} ha</td>
+              <td>${pupuk}</td>
+              <td>${farmer.village}, ${farmer.district}</td>
+              <td>${coord[0]?.toFixed?.(4) || "-"}, ${coord[1]?.toFixed?.(4) || "-"}</td>
+              <td>
+                <button class="edit-btn" onclick="editFarmer('${regency}', ${index})">✏️ Edit</button>
+                <button class="hapus-btn" onclick="deleteFarmer('${regency}', ${index})">🗑️ Hapus</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    function deleteFarmer(regency, index) {
+      if (confirm("Yakin ingin menghapus data ini?")) {
+        farmersByRegency[regency].splice(index, 1);
+        if (farmersByRegency[regency].length === 0) {
+          delete farmersByRegency[regency];
+        }
+        localStorage.setItem('farmersByRegency', JSON.stringify(farmersByRegency));
+        displayFarmers();
+      }
+    }
+
+    function editFarmer(regency, index) {
+      const farmer = farmersByRegency[regency][index];
+      const name = prompt("Edit Nama:", farmer.name);
+      const address = prompt("Edit Alamat:", farmer.address);
+      const landSize = prompt("Edit Luas Lahan (ha):", farmer.landSize);
+
+      if (name && address && !isNaN(parseFloat(landSize))) {
+        farmer.name = name;
+        farmer.address = address;
+        farmer.landSize = parseFloat(landSize);
+        localStorage.setItem('farmersByRegency', JSON.stringify(farmersByRegency));
+        displayFarmers();
+      } else {
+        alert("Data tidak valid atau edit dibatalkan.");
+      }
+    }
+  </script>
+
+  <footer class="footer-marquee">
+    <p>&copy; 2025 Website Pupuk Pertanian Kalimantan Selatan</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    checkAccess(["pegawai", "pemerintah"]);
+    const logoutBtn = document.createElement("button");
+    logoutBtn.textContent = "Logout";
+    logoutBtn.onclick = logoutUser;
+    logoutBtn.style.margin = "10px";
+    document.querySelector("nav ul").appendChild(logoutBtn);
+  </script>
+</body>
+</html>

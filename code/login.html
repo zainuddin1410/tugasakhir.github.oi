@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Aplikasi Pertanian</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f8f0;
+            background-image: url('sawah.jpeg'); 
+            background-size: cover;
+            background-position: center;
+            color: #333;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95); 
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-container h2 {
+            margin-bottom: 25px;
+            color: #2e7d32;
+            font-size: 2em;
+        }
+        .login-container label {
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+            font-weight: bold;
+            color: #555;
+        }
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-container button:hover {
+            background-color: #45a049;
+        }
+        .login-container #loginMessage {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .login-container p#loginMessage.success {
+            color: green;
+        }
+        .login-container p#loginMessage.error {
+            color: red;
+        }
+        .role-selection a {
+            display: block;
+            background-color: #f0f0f0;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .role-selection a:hover {
+            background-color: #e0e0e0;
+        }
+        #registerLinkKios {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #555;
+            display: none; 
+        }
+        #registerLinkKios a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        #registerLinkKios a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 id="loginTitle"></h2> <div class="role-selection" id="roleSelection">
+            <a href="login.html?role=pegawai">Login sebagai Pegawai</a>
+            <a href="login.html?role=pemerintah">Login sebagai Pemerintah</a>
+            <a href="login.html?role=kios">Login sebagai Kios</a>
+            <p style="margin-top: 20px; color: #555;">Jika Anda seorang petani, silakan menuju halaman <a href="register.html">Pendaftaran Petani</a>.</p>
+        </div>
+
+        <form id="loginForm" style="display: none;"> <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <button type="submit">Login</button>
+            <p id="loginMessage"></p>
+            <p id="registerLinkKios">Belum punya akun kios? <a href="register-kios.html">Daftar di sini</a></p>
+        </form>
+        <p style="margin-top: 20px;"><a href="index.html">Kembali ke Halaman Utama</a></p>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const roleSelectionDiv = document.getElementById('roleSelection');
+            const loginTitle = document.getElementById('loginTitle');
+            const registerLinkKios = document.getElementById('registerLinkKios');
+            const loginMessage = document.getElementById('loginMessage');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedRole = urlParams.get('role'); 
+
+            if (selectedRole) {
+                roleSelectionDiv.style.display = 'none';
+                loginForm.style.display = 'flex'; 
+                loginTitle.textContent = `Login sebagai ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`;
+
+                if (selectedRole === 'kios') {
+                    if (registerLinkKios) registerLinkKios.style.display = 'block';
+                } else {
+                    if (registerLinkKios) registerLinkKios.style.display = 'none';
+                }
+                loginForm.addEventListener('submit', handleLogin); 
+
+            } else {
+                roleSelectionDiv.style.display = 'flex';
+                loginForm.style.display = 'none';
+                loginTitle.textContent = 'Pilih Peran Login';
+                if (registerLinkKios) registerLinkKios.style.display = 'none';
+            }
+            updateNavVisibility(); 
+        });
+    </script>
+</body>
+</html>

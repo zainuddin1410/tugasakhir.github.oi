@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Akun Kios</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: url('https://source.unsplash.com/1600x900/?farm') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #228B22;
+      font-size: 2em;
+    }
+    .login-container label {
+      display: block;
+      margin-bottom: 8px;
+      text-align: left;
+      font-weight: bold;
+      color: #555;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .login-container button:hover {
+      background-color: #45a049;
+    }
+    .login-container #loginMessage {
+      color: red;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .register-link {
+      margin-top: 20px;
+      font-size: 0.9em;
+    }
+    .register-link a {
+      color: #228B22;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <main class="login-container">
+    <h2>Login Akun Kios</h2>
+    <form id="loginKiosForm">
+      <label for="kiosUsername">Username Kios:</label>
+      <input type="text" id="kiosUsername" required>
+
+      <label for="kiosPassword">Password Kios:</label>
+      <input type="password" id="kiosPassword" required>
+      
+      <button type="submit">Login</button>
+      <p id="loginMessage"></p>
+    </form>
+    <p class="register-link">Belum punya akun? <a href="register_kios.html">Daftar di sini</a></p>
+  </main>
+
+  <script src="script.js"></script> </body>
+</html>

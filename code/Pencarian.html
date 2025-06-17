@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Pencarian Data Petani</title>
+    <link rel="stylesheet" href="styles.css" />
+        <style>
+        .judul-utama {
+            font-size: 3em;
+            font-weight: bold;
+            background-color: azure;
+            background-size: cover;
+            background-position: center;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin: 10px 0;
+        }
+        header {
+        background-image: url('sawah.jpeg');
+        background-size: cover;
+        background-position: center;
+        padding: 20px;
+        }
+        .akhir {
+        font-weight: bold;
+        background-color: rgb(0, 0, 0);
+        background-size: cover;
+        background-position: center;
+        color: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h3 class="judul-utama">Website Pertanian dan Perkebunan</h3>
+        <nav>
+            <ul>
+                <li><a href="beranda.html">Beranda</a></li>
+                <li><a href="pupuk.html">Stok Pupuk</a></li>
+                <li><a href="Pencarian.html">Pencarian Data Petani</a></li>
+                <li><a href="pengambilan.html">Pengambilan Pupuk</a></li>
+                <li><a href="register.html">Pendataan Petani</a></li>
+                <li><a href="Datapetani.html">Data Petani</a></li>
+              </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Pencarian Data Petani</h2>
+        <form id="searchForm">
+            <label for="searchName">Nama Petani:</label>
+            <input type="text" id="searchName" required>
+            <button type="submit">Cari</button>
+        </form>
+
+        <div id="searchResult" style="margin-top: 20px;"></div>
+    </main>
+
+<footer class="footer-marquee">
+  <p>&copy; 2025 Website Pupuk Pertanian Kalimantan Selatan</p>
+</footer>
+
+    <script>
+        const farmersByRegency = JSON.parse(localStorage.getItem("farmersByRegency")) || {};
+
+        document.getElementById("searchForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const name = document.getElementById("searchName").value.toLowerCase();
+            const resultDiv = document.getElementById("searchResult");
+            resultDiv.innerHTML = "";
+
+            let found = false;
+            for (const regency in farmersByRegency) {
+                const farmers = farmersByRegency[regency];
+                const matchedFarmers = farmers.filter(f => f.name.toLowerCase().includes(name));
+
+                matchedFarmers.forEach(f => {
+                    found = true;
+                    const coord = f.coordinates?.[0] || ["-", "-"];
+                    resultDiv.innerHTML += `
+                        <div style="border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                            <strong>Nama:</strong> ${f.name}<br>
+                            <strong>Alamat:</strong> ${f.address}<br>
+                            <strong>Kabupaten:</strong> ${regency}<br>
+                            <strong>Desa/Kecamatan:</strong> ${f.village}, ${f.district}<br>
+                            <strong>Luas Lahan:</strong> ${f.landSize} ha<br>
+                            <strong>Kebutuhan Pupuk:</strong><br>
+                        ${f.fertilizerResult ? Object.entries(f.fertilizerResult).map(([jenis, jumlah]) => {
+                         return `&nbsp;&nbsp;- ${jenis}: ${jumlah} kg`;
+                          } ).join('<br>') : 'Belum dihitung'}<br>
+                            <strong>Koordinat:</strong> ${coord[0]?.toFixed?.(4)}, ${coord[1]?.toFixed?.(4)}
+                        </div>
+                    `;
+                });
+            }
+            if (!found) {
+                resultDiv.innerHTML = "<p style='color: red;'>Data petani tidak ditemukan.</p>";
+            }
+        });
+    </script>
+</body>
+</html>

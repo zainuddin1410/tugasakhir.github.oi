@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pendaftaran Petani</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <style>
+    /* Tambahkan atau sesuaikan CSS berikut */
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid #ccc; /* Tambahkan border agar terlihat lebih jelas */
+      border-radius: 8px;
+    }
+    .judul-utama {
+      font-size: 3em;
+      font-weight: bold;
+      background-color: azure;
+      background-size: cover;
+      background-position: center;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      margin: 10px 0;
+    }
+    header {
+      background-image: url('sawah.jpeg');
+      background-size: cover;
+      background-position: center;
+      padding: 20px;
+    }
+    /* Pastikan styling untuk form dan input konsisten dengan styles.css */
+    main {
+        max-width: 900px; /* Lebarkan sedikit main untuk peta */
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    form label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="number"],
+    form textarea,
+    form select {
+        width: calc(100% - 22px); /* Sesuaikan lebar */
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    form button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-size: 1em;
+    }
+    form button:hover {
+        background-color: #45a049;
+    }
+    #fertilizerResult {
+        margin-top: 15px;
+        border: 1px dashed #4CAF50;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #e6ffe6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h3 class="judul-utama">Pendaftaran Petani Kalimantan Selatan</h3>
+    <nav>
+      <ul>
+        <li><a href="beranda.html">Beranda</a></li>
+        <li><a href="pupuk.html">Informasi Jumlah Pupuk</a></li>
+        <li><a href="Pencarian.html">Pencarian Data Petani</a></li>
+        <li><a href="register.html">Pendataan Petani</a></li>
+        <li><a href="Datapetani.html">Data Petani</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Form Pendaftaran Petani</h2>
+    <form id="farmerRegistrationForm">
+      <label for="farmerName">Nama Petani:</label>
+      <input type="text" id="farmerName" required />
+
+      <label for="farmerAddress">Alamat Lengkap:</label>
+      <input type="text" id="farmerAddress" required />
+
+      <label for="farmerPhone">Nomor Telepon:</label>
+      <input type="text" id="farmerPhone" placeholder="Contoh: 081234567890" />
+
+      <label for="farmerEmail">Email (Opsional):</label>
+      <input type="email" id="farmerEmail" placeholder="nama@contoh.com" />
+
+      <label for="regency">Kabupaten:</label>
+      <select id="regency" required>
+        <option value="">-- Pilih Kabupaten --</option>
+        <option value="Balangan">Balangan</option>
+        <option value="Banjar">Banjar</option>
+        <option value="Barito Kuala">Barito Kuala</option>
+        <option value="Hulu Sungai Selatan">Hulu Sungai Selatan</option>
+        <option value="Hulu Sungai Tengah">Hulu Sungai Tengah</option>
+        <option value="Hulu Sungai Utara">Hulu Sungai Utara</option>
+        <option value="Kotabaru">Kotabaru</option>
+        <option value="Tabalong">Tabalong</option>
+        <option value="Tanah Bumbu">Tanah Bumbu</option>
+        <option value="Tanah Laut">Tanah Laut</option>
+        <option value="Tapin">Tapin</option>
+        <option value="Banjarmasin">Banjarmasin (Kota)</option>
+        <option value="Banjarbaru">Banjarbaru (Kota)</option>
+      </select>
+
+      <label for="village">Desa/Kelurahan:</label>
+      <input type="text" id="village" required placeholder="Silakan masukan Desa atau Kelurahan" />
+
+      <label for="district">Kecamatan:</label>
+      <input type="text" id="district" required placeholder="Silakan masukan Kecamatan" />
+
+      <label for="drawnLandCoordinates">Koordinat Lahan (Otomatis dari Peta):</label>
+      <input type="text" id="drawnLandCoordinates" readonly placeholder="Koordinat poligon yang digambar" />
+
+      <h3>Gambarkan Lahan di Peta</h3>
+      <div id="map"></div>
+
+      <h3>Cari Lokasi di Peta (untuk menempatkan marker dan membantu memilih Kabupaten)</h3>
+      <input id="autocomplete" type="text" placeholder="Masukkan nama desa atau kecamatan..." />
+      <button type="button" onclick="searchVillage()">Cari Lokasi</button> 
+      <p id="villageSearchStatus" style="color: gray; margin-top: 10px;">Cari lokasi untuk menempatkan marker di peta, lalu isi Desa/Kelurahan dan Kecamatan secara manual.</p>
+      
+      <h3>Hitung Kebutuhan Pupuk</h3>
+      <label for="cropType">Jenis Tanaman:</label>
+      <select id="cropType" required>
+          <option value="">-- Pilih Tanaman --</option>
+          <option value="padi">Padi</option>
+          <option value="jagung">Jagung</option>
+          <option value="ubi_kayu">Ubi Kayu</option>
+          <option value="ubi_jalar">Ubi Jalar</option>
+      </select>
+      <label for="landSize">Luas Lahan (hektar):</label>
+      <input type="number" id="landSize" step="0.01" min="0" required placeholder="Akan terisi otomatis dari peta" readonly> 
+      <button type="button" onclick="calculateFertilizer()">Hitung Kebutuhan Pupuk</button>
+      <div id="fertilizerResult" data-json=""></div>
+
+      <button type="submit">Daftar Petani</button>
+    </form>
+  </main>
+
+  <footer class="footer-marquee">
+    <p>&copy; 2025 Website Pupuk Pertanian Kalimantan Selatan</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Memastikan akses hanya untuk peran yang diizinkan saat DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", function() {
+        checkAccess(["pegawai", "pemerintah"]);
+    });
+  </script>
+</body>
+</html>

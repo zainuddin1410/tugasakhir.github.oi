@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pengambilan Pupuk</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    #preview {
+      max-width: 300px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    #infoJatah {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: none;
+    }
+    .judul-utama {
+      font-size: 3em;
+      font-weight: bold;
+      background-color: azure;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      margin: 10px 0;
+    }
+    header {
+      background-image: url('sawah.jpeg');
+      background-size: cover;
+      background-position: center;
+      padding: 20px;
+    }
+    .akhir {
+      font-weight: bold;
+      background-color: black;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="judul-utama">Website Pupuk Pertanian Kalimantan Selatan</h1>
+    <nav>
+      <ul>
+        <li><a href="beranda.html">Beranda</a></li>
+        <li><a href="pupuk.html">Stok Pupuk</a></li>
+        <li><a href="Pencarian.html">Pencarian Data Petani</a></li>
+        <li><a href="pengambilan.html">Pengambilan Pupuk</a></li>
+        <li><a href="register.html">Pendataan Petani</a></li>
+        <li><a href="Datapetani.html">Data Petani</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Form Pengambilan Pupuk</h2>
+    <form id="ambilForm">
+      <label for="identifier">Nama Petani atau No. KTP:</label>
+      <input type="text" id="identifier" required />
+
+      <div id="infoJatah"></div>
+
+      <label for="jenisPupuk">Pilih Jenis Pupuk:</label>
+      <select id="jenisPupuk" required>
+        <option value="">-- Pilih Jenis --</option>
+      </select>
+
+      <label for="jumlahAmbil">Jumlah Pupuk yang Diambil (kg):</label>
+      <input type="number" id="jumlahAmbil" min="1" required />
+
+      <label for="fotoDokumentasi">Foto Dokumentasi Pengambilan:</label>
+      <input type="file" id="fotoDokumentasi" accept="image/*" required />
+      <img id="preview" src="#" alt="Preview Foto" style="display:none;" />
+
+      <button type="submit">Ambil Pupuk</button>
+    </form>
+
+    <div id="hasilAmbil" style="margin-top:20px;"></div>
+  </main>
+
+  <footer class="footer-marquee">
+    <p>&copy; 2025 Website Pupuk Pertanian Kalimantan Selatan</p>
+  </footer>
+
+<script>
+  const farmersByRegency = JSON.parse(localStorage.getItem("farmersByRegency")) || {};
+  let sisaPupuk = JSON.parse(localStorage.getItem("sisaJatahPupuk")) || {};
+  let riwayat = JSON.parse(localStorage.getItem("riwayatPengambilan")) || [];
+
+  function normalizePupukKeys(obj) {
+    const result = {};
+    for (const key in obj) {
+      const cleanKey = key.trim().toLowerCase();
+      const properKey = 
+        cleanKey === 'urea' ? 'Urea' :
+        cleanKey === 'sp36' || cleanKey === 'sp-36' ? 'SP-36' :
+        cleanKey === 'kcl' ? 'KCl' :
+        cleanKey === 'kompos' ? 'Kompos' : key;
+      result[properKey] = parseFloat(obj[key]);
+    }
+    return result;
+  }
+
+  function cariPetani(identifier) {
+    const id = identifier.trim().toLowerCase();
+    for (const regency in farmersByRegency) {
+      for (const farmer of farmersByRegency[regency]) {
+        if (
+          (farmer.name && farmer.name.toLowerCase() === id) ||
+          (farmer.ktp && farmer.ktp.toLowerCase() === id)
+        ) {
+          return { farmer, regency };
+        }
+      }
+    }
+    return null;
+  }
+
+  document.getElementById("identifier").addEventListener("input", function () {
+    const infoDiv = document.getElementById("infoJatah");
+    const pupukSelect = document.getElementById("jenisPupuk");
+    pupukSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>';
+
+    const ident = this.value.trim();
+    const result = cariPetani(ident);
+
+    if (result) {
+      const { farmer, regency } = result;
+      const coord = farmer.coordinates?.[0] || ["-", "-"];
+      const idPetani = farmer.id || `${farmer.name}_${farmer.ktp || "-"}`;
+      const fert = normalizePupukKeys(farmer.fertilizerResult || {});
+
+      if (!sisaPupuk[idPetani] || typeof sisaPupuk[idPetani] !== 'object') {
+        sisaPupuk[idPetani] = { ...fert };
+        localStorage.setItem("sisaJatahPupuk", JSON.stringify(sisaPupuk));
+      }
+
+      const sisa = sisaPupuk[idPetani];
+      let kebutuhan = "", jatah = "", sisaInfo = "";
+
+      for (const jenis in fert) {
+        kebutuhan += `${jenis}: ${fert[jenis]} kg<br>`;
+        jatah += `${jenis}: ${fert[jenis]} kg<br>`;
+        const sisaKg = sisa[jenis] ?? fert[jenis];
+        sisaInfo += `${jenis}: ${sisaKg} kg<br>`;
+
+        if (sisaKg > 0) {
+          const opt = document.createElement("option");
+          opt.value = jenis;
+          opt.textContent = `${jenis} (${sisaKg} kg)`;
+          pupukSelect.appendChild(opt);
+        }
+      }
+
+      infoDiv.innerHTML = `
+        <strong>Nama:</strong> ${farmer.name}<br>
+        <strong>Alamat:</strong> ${farmer.address}<br>
+        <strong>Kabupaten:</strong> ${regency}<br>
+        <strong>Desa/Kecamatan:</strong> ${farmer.village}, ${farmer.district}<br>
+        <strong>Luas Lahan:</strong> ${farmer.landSize} ha<br><br>
+        <strong>Kebutuhan Pupuk:</strong><br>${kebutuhan}<br>
+        <strong>Jatah Pupuk:</strong><br>${jatah}<br>
+        <strong>Sisa Jatah Saat Ini:</strong><br>${sisaInfo}
+      `;
+      infoDiv.style.display = "block";
+    } else {
+      infoDiv.innerHTML = `<span style="color:red;">❌ Data petani tidak ditemukan.</span>`;
+      infoDiv.style.display = "block";
+    }
+  });
+
+  document.getElementById("ambilForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const ident = document.getElementById("identifier").value.trim();
+    const jenisPupuk = document.getElementById("jenisPupuk").value;
+    const jumlahAmbil = parseFloat(document.getElementById("jumlahAmbil").value);
+    const foto = document.getElementById("fotoDokumentasi").files[0];
+    const hasilDiv = document.getElementById("hasilAmbil");
+    const result = cariPetani(ident);
+
+    if (!result || !jenisPupuk || isNaN(jumlahAmbil) || jumlahAmbil <= 0 || !foto) {
+      hasilDiv.innerHTML = `<p style="color:red;">❌ Lengkapi semua data dan pilih jenis pupuk yang tersedia.</p>`;
+      return;
+    }
+
+    const { farmer, regency } = result;
+    const idPetani = farmer.id || `${farmer.name}_${farmer.ktp || "-"}`;
+
+    let sisaData = sisaPupuk[idPetani];
+
+    if (!sisaData || typeof sisaData !== 'object' || !(jenisPupuk in sisaData)) {
+      hasilDiv.innerHTML = `<p style="color:red;">❌ Jenis pupuk "${jenisPupuk}" tidak ditemukan pada data petani.</p>`;
+      return;
+    }
+
+    const sisaSekarang = parseFloat(sisaData[jenisPupuk]) || 0;
+
+    if (jumlahAmbil > sisaSekarang) {
+      hasilDiv.innerHTML = `<p style="color:orange;">⚠️ Jumlah melebihi sisa jatah ${jenisPupuk} (${sisaSekarang} kg).</p>`;
+      return;
+    }
+
+    sisaData[jenisPupuk] = (sisaSekarang - jumlahAmbil).toFixed(2);
+    localStorage.setItem("sisaJatahPupuk", JSON.stringify(sisaPupuk));
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const fotoURL = e.target.result;
+
+      riwayat.push({
+        name: farmer.name,
+        ktp: farmer.ktp || "-",
+        regency,
+        jenisPupuk,
+        jumlahAmbil,
+        sisaAkhir: sisaData[jenisPupuk],
+        waktu: new Date().toLocaleString(),
+        fotoNama: foto.name
+      });
+      localStorage.setItem("riwayatPengambilan", JSON.stringify(riwayat));
+
+      hasilDiv.innerHTML = `
+        <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+          <p><strong>Nama:</strong> ${farmer.name}</p>
+          <p><strong>Jenis Pupuk:</strong> ${jenisPupuk}</p>
+          <p><strong>Jumlah Diambil:</strong> ${jumlahAmbil} kg</p>
+          <p><strong>Sisa Sekarang:</strong> ${sisaData[jenisPupuk]} kg</p>
+          <img src="${fotoURL}" alt="Dokumentasi" style="max-width:300px; border-radius:8px;" />
+          <p style="color: green; font-weight:bold;">✅ Pengambilan tercatat.</p>
+        </div>
+      `;
+    };
+    reader.readAsDataURL(foto);
+  });
+</script>
+</body>
+</html>

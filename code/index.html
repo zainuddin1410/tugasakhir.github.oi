@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Utama Website Pertanian</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to right, #a8e063, #56ab2f); 
+            color: #333;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #2e7d32; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .role-buttons button {
+            background-color: #4CAF50; 
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-buttons button:hover {
+            background-color: #388e3c; 
+            transform: translateY(-2px);
+        }
+
+        .role-buttons button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #logoutButton {
+            background-color: #d32f2f;
+            margin-top: 25px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+
+        #logoutButton:hover {
+            background-color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Selamat Datang di Website Pertanian</h1>
+        <p>Silakan pilih peran Anda untuk masuk</p>
+
+        <div class="role-buttons">
+            <button onclick="handleRoleSelection('petani')">Login sebagai Petani</button>
+            <button onclick="handleRoleSelection('kios')">Login sebagai Kios</button>
+            <button onclick="handleRoleSelection('pegawai')">Login sebagai Pegawai Pertanian</button>
+            <button onclick="handleRoleSelection('pemerintah')">Login sebagai Pemerintah</button>
+        </div>
+
+        <button id="logoutButton" style="display: none;">Logout</button>
+    </div>
+
+    <script>
+        function setAuth(role, username = '') {
+            sessionStorage.setItem("userRole", role);
+            sessionStorage.setItem("loggedInUsername", username);
+            console.log(`[AUTH] User role set to: ${role}, username: ${username}`);
+        }
+
+        function getAuthRole() {
+            return sessionStorage.getItem("userRole");
+        }
+
+        function clearAuth() {
+            sessionStorage.removeItem("userRole");
+            sessionStorage.removeItem("loggedInUsername");
+            console.log("[AUTH] Session cleared.");
+        }
+
+        function updateLogoutButtonVisibility() {
+            const logoutButton = document.getElementById("logoutButton");
+            if (logoutButton) {
+                if (getAuthRole()) { 
+                    logoutButton.style.display = "block";
+                } else {
+                    logoutButton.style.display = "none";
+                }
+            }
+        }
+
+        function handleRoleSelection(role) {
+            console.log(`[INDEX] User selected role: ${role}`);
+            if (role === 'petani') {
+
+                const username = prompt("Masukkan nama Anda (misal: Budi Petani):");
+                if (!username) { 
+                    alert("Login petani dibatalkan.");
+                    return;
+                }
+                setAuth('petani', username); 
+                alert(`Login berhasil sebagai Petani: ${username}!`);
+                window.location.href = 'beranda.html'; 
+            } else {
+                window.location.href = `login.html?role=${role}`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateLogoutButtonVisibility(); 
+
+            const logoutButton = document.getElementById("logoutButton");
+            if (logoutButton) {
+                logoutButton.addEventListener("click", () => {
+                    clearAuth();
+                    alert("Anda telah logout.");
+                    window.location.href = "index.html";
+                });
+            }
+        });
+    </script>
+</body>
+</html>

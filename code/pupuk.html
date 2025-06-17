@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Stok Pupuk Kalimantan Selatan</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* CSS yang Anda berikan, tidak diubah */
+        table {
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #4CAF50;
+            margin-top: 40px;
+        }
+        h4 {
+            margin: 10px 0 5px;
+            color: #2e7d32;
+        }
+        .judul-utama {
+            font-size: 3em;
+            font-weight: bold;
+            background-color: azure;
+            background-size: cover;
+            background-position: center;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin: 10px 0;
+        }
+        header {
+            background-image: url('sawah.jpeg');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+        }
+        .akhir {
+            font-weight: bold;
+            background-color: rgb(0, 0, 0);
+            background-size: cover;
+            background-position: center;
+            color: rgb(255, 255, 255);
+        }
+        /* Tambahan CSS untuk tombol edit (minimalis, agar tidak mengganggu desain Anda) */
+        .edit-btn {
+            background-color: #007bff; /* Warna biru standar */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.3s ease; /* Efek hover */
+        }
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+        /* Penyesuaian tabel agar lebih rapi (bisa disesuaikan di styles.css jika mau) */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="judul-utama">Website Pupuk Pertanian Kalimantan Selatan</h1>
+        <nav>
+            <ul>
+                <li><a href="beranda.html">Beranda</a></li>
+                <li><a href="pupuk.html">Stok Pupuk</a></li>
+                <li><a href="Pencarian.html">Pencarian Data Petani</a></li>
+                <li id="navPengambilanLink"><a href="pengambilan.html">Pengambilan Pupuk</a></li>
+                <li id="navPendaftaranPetaniLink"><a href="register.html">Pendataan Petani</a></li>
+                <li id="navDataPetaniLink"><a href="Datapetani.html">Data Petani</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Stok dan Harga Pupuk per Kabupaten & Desa</h2>
+        <div id="stokContainer"></div>
+    </main>
+
+    <footer class="footer-marquee">
+        <p>&copy; 2025 Website Pupuk Pertanian Kalimantan Selatan</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Data pupuk default jika belum ada di localStorage
+        const defaultDataPupuk = {
+            "Banjar": {
+                "Desa Sungai Rangas": [
+                    { jenis: "Urea", jumlah: "3 ton", harga: "Rp 1.800.000 / ton" },
+                    { jenis: "SP-36", jumlah: "100 karung", harga: "Rp 180.000 / karung" },
+                    { jenis: "KCl", jumlah: "60 karung", harga: "Rp 170.000 / karung" },
+                    { jenis: "Kompos", jumlah: "2 ton", harga: "Rp 500.000 / ton" }
+                ],
+                "Desa Simpang Empat": [
+                    { jenis: "Kompos", jumlah: "2 ton", harga: "Rp 500.000 / ton" },
+                    { jenis: "Urea", jumlah: "1 ton", harga: "Rp 1.750.000 / ton" }
+                ],
+                "Desa Kertak Hanyar": [
+                    { jenis: "SP-36", jumlah: "75 karung", harga: "Rp 175.000 / karung" },
+                    { jenis: "KCl", jumlah: "80 karung", harga: "Rp 160.000 / karung" }
+                ]
+            },
+            "Tapin": {
+                "Desa Salam Babaris": [
+                    { jenis: "Urea", jumlah: "2 ton", harga: "Rp 1.790.000 / ton" },
+                    { jenis: "KCl", jumlah: "80 karung", harga: "Rp 165.000 / karung" },
+                    { jenis: "SP-36", jumlah: "90 karung", harga: "Rp 180.000 / karung" }
+                ],
+                "Desa Binuang": [
+                    { jenis: "SP-36", jumlah: "50 karung", harga: "Rp 185.000 / karung" },
+                    { jenis: "Kompos", jumlah: "3 ton", harga: "Rp 470.000 / ton" }
+                ],
+                "Desa Tapin Utara": [
+                    { jenis: "Urea", jumlah: "4 ton", harga: "Rp 1.770.000 / ton" },
+                    { jenis: "Kompos", jumlah: "2 ton", harga: "Rp 490.000 / ton" }
+                ]
+            },
+            "Tanah Laut": {
+                "Desa Takisung": [
+                    { jenis: "Urea", jumlah: "4 ton", harga: "Rp 1.820.000 / ton" },
+                    { jenis: "Kompos", jumlah: "3 ton", harga: "Rp 490.000 / ton" },
+                    { jenis: "KCl", jumlah: "70 karung", harga: "Rp 160.000 / karung" }
+                ],
+                "Desa Pelaihari": [
+                    { jenis: "SP-36", jumlah: "100 karung", harga: "Rp 190.000 / karung" },
+                    { jenis: "Urea", jumlah: "5 ton", harga: "Rp 1.800.000 / ton" }
+                ],
+                "Desa Jorong": [
+                    { jenis: "KCl", jumlah: "60 karung", harga: "Rp 150.000 / karung" },
+                    { jenis: "Kompos", jumlah: "4 ton", harga: "Rp 470.000 / ton" }
+                ]
+            },
+            "Hulu Sungai Selatan": {
+                "Desa Angkinang": [
+                    { jenis: "KCl", jumlah: "90 karung", harga: "Rp 160.000 / karung" },
+                    { jenis: "SP-36", jumlah: "120 karung", harga: "Rp 170.000 / karung" },
+                    { jenis: "Urea", jumlah: "2 ton", harga: "Rp 1.750.000 / ton" }
+                ],
+                "Desa Kandangan": [
+                    { jenis: "Kompos", jumlah: "2 ton", harga: "Rp 500.000 / ton" },
+                    { jenis: "SP-36", jumlah: "60 karung", harga: "Rp 185.000 / karung" }
+                ]
+            },
+            "Kotabaru": {
+                "Desa Sebatung": [
+                    { jenis: "SP-36", jumlah: "120 karung", harga: "Rp 175.000 / karung" },
+                    { jenis: "Urea", jumlah: "2 ton", harga: "Rp 1.780.000 / ton" },
+                    { jenis: "Kompos", jumlah: "4 ton", harga: "Rp 460.000 / ton" }
+                ],
+                "Desa Pulaubulu": [
+                    { jenis: "KCl", jumlah: "80 karung", harga: "Rp 160.000 / karung" },
+                    { jenis: "Kompos", jumlah: "5 ton", harga: "Rp 490.000 / ton" }
+                ]
+            },
+            "Balangan": {
+                "Desa Paringin": [
+                    { jenis: "Urea", jumlah: "5 ton", harga: "Rp 1.750.000 / ton" },
+                    { jenis: "KCl", jumlah: "100 karung", harga: "Rp 150.000 / karung" }
+                ],
+                "Desa Gunung Batu": [
+                    { jenis: "Kompos", jumlah: "2 ton", harga: "Rp 520.000 / ton" },
+                    { jenis: "SP-36", jumlah: "60 karung", harga: "Rp 200.000 / karung" }
+                ]
+            },
+            "Barito Kuala": {
+                "Desa Aluh-Aluh": [
+                    { jenis: "Urea", jumlah: "6 ton", harga: "Rp 1.810.000 / ton" },
+                    { jenis: "KCl", jumlah: "70 karung", harga: "Rp 180.000 / karung" }
+                ],
+                "Desa Paku": [
+                    { jenis: "Kompos", jumlah: "3 ton", harga: "Rp 490.000 / ton" },
+                    { jenis: "SP-36", jumlah: "100 karung", harga: "Rp 175.000 / karung" }
+                ]
+            },
+            "Banjarmasin": {
+                "Desa Banjarbaru": [
+                    { jenis: "Urea", jumlah: "4 ton", harga: "Rp 1.800.000 / ton" },
+                    { jenis: "Kompos", jumlah: "1 ton", harga: "Rp 480.000 / ton" }
+                ],
+                "Desa Kertak Hanyar": [
+                    { jenis: "KCl", jumlah: "60 karung", harga: "Rp 160.000 / karung" },
+                    { jenis: "SP-36", jumlah: "75 karung", harga: "Rp 180.000 / karung" }
+                ]
+            }
+        };
+
+        // Fungsi untuk menampilkan data stok pupuk
+        function displayStokPupuk() {
+            const container = document.getElementById("stokContainer");
+            container.innerHTML = ''; // Bersihkan kontainer
+
+            // Ambil data dari localStorage, jika tidak ada, gunakan default dan simpan
+            let dataPupuk = JSON.parse(localStorage.getItem('dataPupukKalsel'));
+            if (!dataPupuk) {
+                dataPupuk = defaultDataPupuk;
+                localStorage.setItem('dataPupukKalsel', JSON.stringify(dataPupuk));
+            }
+
+            // Dapatkan peran pengguna dari script.js
+            const userRole = getAuthRole();
+
+            for (const kabupaten in dataPupuk) {
+                const kabupatenDiv = document.createElement("div");
+                kabupatenDiv.innerHTML = `<h3>${kabupaten}</h3>`;
+
+                const desaData = dataPupuk[kabupaten];
+                for (const desa in desaData) {
+                    let tableHTML = `
+                        <h4>Desa ${desa}</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Jenis Pupuk</th>
+                                    <th>Jumlah</th>
+                                    <th>Harga</th>
+                                    ${userRole === 'pegawai' ? '<th>Aksi</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    desaData[desa].forEach((pupuk, index) => {
+                        // Tidak perlu ID pada TR atau TD kecuali jika Anda akan memanipulasi DOM secara langsung tanpa render ulang
+                        tableHTML += `
+                            <tr>
+                                <td>${pupuk.jenis}</td>
+                                <td>${pupuk.jumlah}</td>
+                                <td>${pupuk.harga}</td>
+                                ${userRole === 'pegawai' ? `<td><button class="edit-btn" onclick="editPupuk('${kabupaten}', '${desa}', '${pupuk.jenis}', ${index})">Edit</button></td>` : ''}
+                            </tr>
+                        `;
+                    });
+                    tableHTML += `
+                            </tbody>
+                        </table>
+                    `;
+                    kabupatenDiv.innerHTML += tableHTML;
+                }
+                container.appendChild(kabupatenDiv);
+            }
+        }
+
+        // Fungsi untuk mengedit data pupuk
+        function editPupuk(kabupaten, desa, jenis, index) {
+            // Pastikan hanya 'pegawai' yang bisa menjalankan fungsi ini secara langsung (redundant check, tapi bagus)
+            if (getAuthRole() !== 'pegawai') {
+                alert('Anda tidak memiliki izin untuk mengedit stok pupuk.');
+                return;
+            }
+
+            const dataPupuk = JSON.parse(localStorage.getItem('dataPupukKalsel'));
+            const pupukToEdit = dataPupuk[kabupaten][desa][index];
+
+            const newJumlah = prompt(`Edit jumlah ${jenis} di ${desa}, ${kabupaten}:`, pupukToEdit.jumlah);
+            if (newJumlah === null) return; // Jika dibatalkan
+
+            const newHarga = prompt(`Edit harga ${jenis} di ${desa}, ${kabupaten}:`, pupukToEdit.harga);
+            if (newHarga === null) return; // Jika dibatalkan
+
+            // Validasi sederhana
+            if (newJumlah.trim() === '' || newHarga.trim() === '') {
+                alert('Jumlah dan harga tidak boleh kosong.');
+                return;
+            }
+
+            pupukToEdit.jumlah = newJumlah;
+            pupukToEdit.harga = newHarga;
+
+            localStorage.setItem('dataPupukKalsel', JSON.stringify(dataPupuk));
+            alert('Data pupuk berhasil diperbarui!');
+            displayStokPupuk(); // Perbarui tampilan setelah diedit
+        }
+
+        // Panggil fungsi displayStokPupuk saat DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            displayStokPupuk();
+        });
+    </script>
+</body>
+</html>
